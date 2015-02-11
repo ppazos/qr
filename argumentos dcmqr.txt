@@ -1,0 +1,69 @@
+<org.apache.commons.cli.CommandLine>
+  <args class="linked-list">
+    <string>SERVERAE@127.0.0.1:33333</string>
+  </args>
+  <options>
+    <org.apache.commons.cli.Option>
+      <opt>I</opt>
+      <longOpt>image</longOpt>
+      <hasArg>false</hasArg>
+      <argName>arg</argName>
+      <description>perform instance level query, multiple exclusive with -P and -S, perform study level query
+                            by default.</description>
+      <required>false</required>
+      <optionalArg>false</optionalArg>
+      <numberOfArgs>-1</numberOfArgs>
+      <values/>
+      <valuesep></valuesep>
+    </org.apache.commons.cli.Option>
+    <org.apache.commons.cli.Option>
+      <opt>q</opt>
+      <hasArg>false</hasArg>
+      <argName>[seq/]attr=value</argName>
+      <description>specify matching key. attr can be specified by name or tag value (in hex), e.g. PatientName
+or 00100010. Attributes in nested Datasets can
+be specified by including the name/tag value of
+                            the sequence attribute, e.g. 00400275/00400009
+for Scheduled Procedure Step ID in the Request
+Attributes Sequence</description>
+      <required>false</required>
+      <optionalArg>false</optionalArg>
+      <numberOfArgs>-2</numberOfArgs>
+      <values>
+        <string>StudyDate</string>
+        <string>20010105</string>
+        <string>ModalitiesInStudy</string>
+        <string>CT</string>
+        <string>MR</string>
+      </values>
+      <valuesep>=</valuesep>
+    </org.apache.commons.cli.Option>
+    <org.apache.commons.cli.Option>
+      <opt>L</opt>
+      <hasArg>false</hasArg>
+      <argName>aet[@host][:port]</argName>
+      <description>set AET, local address and listening port of local Application Entity</description>
+      <required>false</required>
+      <optionalArg>false</optionalArg>
+      <numberOfArgs>1</numberOfArgs>
+      <values>
+        <string>QRSCUCHE:44445</string>
+      </values>
+      <valuesep></valuesep>
+    </org.apache.commons.cli.Option>
+    <org.apache.commons.cli.Option>
+      <opt>r</opt>
+      <hasArg>false</hasArg>
+      <argName>attr</argName>
+      <description>specify additional return key. attr can be specified by name or tag value (in hex).</description>
+      <required>false</required>
+      <optionalArg>false</optionalArg>
+      <numberOfArgs>-2</numberOfArgs>
+      <values>
+        <string>0020000e</string>
+        <string>00080018</string>
+      </values>
+      <valuesep></valuesep>
+    </org.apache.commons.cli.Option>
+  </options>
+</org.apache.commons.cli.CommandLine>

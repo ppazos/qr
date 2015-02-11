@@ -1,0 +1,4 @@
+En dependencies puse todos los jars que aparecen en el POM de dcmqr y en el /bin/dcmqr.bat de la distribucion compilada de CDM4CHE.
+
+Puse el /etc de la versión compilada del DCM4CHE porque aparece en el /bin/dcmqr.bat, y tiene archivos de configuración que capaz le son necesarios para correr.
+

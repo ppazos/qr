@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
+	<classpathentry kind="lib" path="dependencies/commons-cli-1.1.jar"/>
+	<classpathentry kind="lib" path="dependencies/dcm4che-core-2.0.19.jar" sourcepath="C:/Documents and Settings/Administrador/Escritorio/PDG Imagenologia Digital/Componente AEI/DCM4CHE Stuff/dcm4che-2.0.19-src"/>
+	<classpathentry kind="lib" path="dependencies/dcm4che-net-2.0.19.jar"/>
+	<classpathentry kind="lib" path="dependencies/log4j-1.2.13.jar"/>
+	<classpathentry kind="lib" path="dependencies/slf4j-api-1.5.0.jar"/>
+	<classpathentry kind="lib" path="dependencies/slf4j-log4j12-1.5.0.jar"/>
+	<classpathentry kind="lib" path="dependencies/xstream/xstream-1.3.1.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
