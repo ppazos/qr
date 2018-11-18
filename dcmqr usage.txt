@@ -1,0 +1,164 @@
+dcmqr usage
+-----------
+
+This describes how to use dcmqr with dcm4chee. 
+
+dcmqr does DICOM query/retreive. 
+	Query is done first with the DICOM C-FIND service. 
+	Retrieve is an optional second step. It usually uses C-MOVE, but can use C-GET. 
+
+C-MOVE is preferred over C-GET. For an explanation of why, see 
+	http://stackoverflow.com/questions/1957005/dicom-c-get-vs-c-move 
+	http://www.medicalconnections.co.uk/kb/Basic_DICOM_Operations 
+
+This is the primary difference between them:
+	C-GET - <Calling AET> tells <Called AET> "Use the existing C-FIND DICOM association to send the images you found back to me."
+	C-MOVE - <Calling AET> tells <Called AET> "Create a new DICOM association to <Destination AET>, and send the images you found to <Destination AET>." 
+		<Destination AET> is very often the same AE Title as <Calling AET>.
+
+dcm4chee configuration is simpler if dcmqr uses the C-GET option. 
+But dcm4chee in a production environment seldom permits this because of security concerns. 
+	dcm4chee sends the images back on the same DICOM association used for query. 
+	dcm4chee cannot verify the identity of the computer that initiated the association. 
+
+Configuring dcm4chee to handle the dcmqr C-MOVE option can be complex, particularly if DNS and firewalls are involved.
+But it is more secure. 
+	dcm4chee can only send images to AE Titles configured in service=AE. 
+	The AE Title configuration contains IP address and port.
+	dcm4chee uses the IP address and port to initiate the DICOM association to a known computer. 
+	
+For more information about C-FIND, see 
+	http://forums.dcm4che.org/jiveforums/thread.jspa?messageID=22804&#22804
+	http://dicomiseasy.blogspot.com/2012/01/dicom-queryretrieve-part-i.html
+	
+	
+Setup
+-----	
+The examples below assume the following: 
+	- dcmqr will run in a terminal window on the user's workstation. 
+		<Tools installation directory>\bin is either the current directory, or on the path.
+		
+		The workstation is assumed to run Windows. 
+		For Linux, small changes may be needed, such as / in paths and ./dcmqr instead of dcmqr. 
+		
+	- dcmqr will query dcm4chee running on a different machine. 
+		The <dcm4chee host machine> name is RadiologyServer, or perhaps RadiologyServer@MyHospital.com, 
+		It is OK to use RadiologyServer's IP address (E.G. 10.0.0.1)
+		If dcmqr is running on the same machine as dcm4chee, use localhost or 127.0.0.1
+	
+	- dcmqr will query/retrieve the image 
+		orig-1.2.840.113619.2.131.571110706.1226051996.105600.dcm 
+		
+		This image can be found at at http://www.dcm4che.org/jira/browse/DCMEE-1830.
+		dcm2txt lists the following tags for this image:  
+			(0008,0016) UI #28 [1.2.840.10008.5.1.4.1.1.128] SOP Class UID (PET in this case)
+			(0008,0018) UI #48 [1.2.840.113619.2.131.571110706.1226051996.105600] SOP Instance UID
+			(0010,0010) PN #18 [TELERAD^QCTEST1^^^] Patient's Name
+			(0010,0020) LO #8 [QCTEST1] Patient ID
+			(0010,0021) LO #4 [JHH] Issuer of Patient ID
+	
+	- dcm4chee query service has been configured to accept incoming DICOM association requests from DCMQR to DCM4CHEE. 
+		AE Titles are case sensitive.
+		Go to http://<dcm4chee host machine>:8080/jmx-console. 
+		dcm4chee.archive
+			service=QueryRetrieveScp
+				CallingAETitles
+					DCMQR 
+				CalledAETitles
+					DCM4CHEE
+
+
+Query only
+----------
+Find all studies on dcm4chee (Use Ctrl-C to interrupt if needed.)
+
+	dcmqr  -L DCMQR  DCM4CHEE@RadiologyServer:11112
+
+The format is
+	dcmqr  -L <Calling AET>  <Called AET>@<dcm4chee host machine>:<Called port> 
+
+	
+Find all studies with a given Patient ID and Issuer of Patient ID. Return the Patient Name of each study. 
+	
+	dcmqr  -L DCMQR  DCM4CHEE@RadiologyServer:11112  -q00100020=QCTEST1 -q00100021=JHH  -r00100010
+
+
+Find all images with a given Patient ID and Issuer of Patient ID. Return the Photometric Interpretation of each image. 
+	
+	dcmqr  -L DCMQR  DCM4CHEE@RadiologyServer:11112  -I  -q00100020=QCTEST1 -q00100021=JHH  -r00280004
+
+
+Query/ Retrieve
+---------------
+The example query/retrieve commands below all do this:
+
+	Find all studies with a given Patient ID and Issuer of Patient ID.
+	Retrieve the images in those studies. 
+		Negotiate an association 
+			to send PET images (SOP Class UID = 1.2.840.10008.5.1.4.1.1.128) 
+			using any transfer syntax. 
+		Store the retrieved images in C:\Test on the workstation. 
+			dcmqr uses the images' SOP Instance UIDs as filenames for the received images. 
+			Any previous files with those names will be overwritten. 
+			
+			dcmrcv used a slightly different filename convention, but still overwrites existing files. 
+
+			
+Query/ Retrieve with C-GET
+--------------------------
+
+	dcmqr  -L DCMQR  DCM4CHEE@RadiologyServer:11112  -q00100020=QCTEST1 -q00100021=JHH  -cget -cstore 1.2.840.10008.5.1.4.1.1.128 -cstoredest C:\Test
+	
+
+Query/ Retrieve with C-MOVE
+---------------------------
+If C-MOVE is used for retrieval, 
+	A third application can receive the images if <Destination AET> and <Calling AET> are different. 
+	dcmqr will receive them if <Destination AET> is the same as <Calling AET>. 
+
+
+- Receiving images with dcmrcv
+
+	dcmrcv is run in a seperate terminal window. 
+		dcmrcv must be started before dcmqr.
+
+	dcmqr and dcmrcv both have DICOM associations on the workstation running the test. 
+		They must use different ports. 
+
+	<Calling AET> and <Destination AET> are different
+		Here, <Destination AET> is set to DCMRCV. 
+		
+		dcm4chee must be configured so it can initiate DICOM associations for outgoing images to <Destination AET>
+			http://<dcm4chee host machine>:8080/jmx-console. 
+			dcm4chee.archive
+				service=AE
+					AEConfiguration
+						dicom://DCMRCV@<Workstation IP address>:11113 cipher:
+
+
+	dcmrcv DCMRCV:11113 -dest C:\Test
+	
+	dcmqr  -L DCMQR:11112  DCM4CHEE@RadiologyServer:11112  -q00100020=QCTEST1 -q00100021=JHH  -cmove DCMRCV -cstore 1.2.840.10008.5.1.4.1.1.128 
+
+
+- Receiving images with dcmqr
+
+	<Calling AET> and <Destination AET> are the same
+		<Calling AET> and <Destination AET> are set to DCMQR.
+		
+		DCMQR is both 
+			a Calling AE Title for an incoming association request to dcm4chee for querying
+			an AE Title that will receive images from an association initiated by dcm4chee. 
+			
+			Go to http://<dcm4chee host machine>:8080/jmx-console. 
+			dcm4chee.archive
+				service=AE
+					AEConfiguration
+						dicom://DCMQR@<Workstation IP address>:11113 cipher:
+				service=QueryRetrieveScp
+					CallingAETitles
+						DCMQR
+	
+
+	dcmqr  -L DCMQR:11113  DCM4CHEE@RadiologyServer:11112  -q00100020=QCTEST1 -q00100021=JHH  -cmove DCMQR -cstore 1.2.840.10008.5.1.4.1.1.128  -cstoredest C:\Test
+

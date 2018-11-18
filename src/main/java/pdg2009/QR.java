@@ -36,9 +36,9 @@ import com.thoughtworks.xstream.XStream;
 public class QR {
 
     private static Logger LOG = LoggerFactory.getLogger(QR.class);
-    
+
     private static final int KB = 1024;
-    
+
 
     private static final String[] DEF_TS = {
         UID.JPEGLossless,
@@ -81,7 +81,7 @@ public class QR {
         UID.NoPixelData,
         UID.ExplicitVRLittleEndian,
         UID.ImplicitVRLittleEndian};
-    
+
     private static final String[] JPLL_TS = {
         UID.JPEGLossless,
         UID.JPEGLosslessNonHierarchical14,
@@ -100,7 +100,7 @@ public class QR {
 
     private static final String[] MPEG2_TS = { UID.MPEG2 };
 
-    
+
     private static enum TS {
         IVLE(IVRLE_TS),
         LE(NATIVE_LE_TS),
@@ -111,7 +111,7 @@ public class QR {
         MPEG2(MPEG2_TS),
         NOPX(NOPX_TS),
         NOPXD(NOPXDEFL_TS);
-        
+
         final String[] uids;
         TS(String[] uids) { this.uids = uids; }
     }
@@ -134,32 +134,32 @@ public class QR {
 
         final String uid;
         CUID(String uid) { this.uid = uid; }
-        
+
     }
-    
+
     /**
      * niveles de busqueda de imagenes.
      */
     public enum Nivel { _PATIENT, _STUDY, _SERIES, _IMAGE }
-        
+
     /**
      * algunas tags importantes (ya estan definidas en la clase Tag).
      */
     public static final String studyInstanceUIDTag  = "0020000d";
     public static final String seriesInstanceUIDTag = "0020000e";
     public static final String sopInstanceUIDTag    = "00080018";
-    
+
     public static final String patientNameTag       = "00100010";
-    
+
     //public static final Integer studyInstanceUIDTag  = Integer.parseInt("0020000D",16);
     //public static final Integer seriesInstanceUIDTag = Integer.parseInt("0020000E",16);
     //public static final Integer sopInstanceUIDTag    = Integer.parseInt("00080018",16);
 
-    
-    
+
+
     private static final String USAGE = "dcmqr <aet>[@<host>[:<port>]] [Options]";
 
-    private static final String DESCRIPTION = 
+    private static final String DESCRIPTION =
         "Query specified remote Application Entity (=Query/Retrieve SCP) "
         + "and optional (s. option -cget/-cmove) retrieve instances of "
         + "matching entities. If <port> is not specified, DICOM default port "
@@ -169,8 +169,8 @@ public class QR {
         + "separate association, a local listening port must be specified "
         + "(s.option -L).\n"
         + "Options:";
-    
-    private static final String EXAMPLE = 
+
+    private static final String EXAMPLE =
         "\nExample: dcmqr -L QRSCU:11113 QRSCP@localhost:11112 -cmove QRSCU " +
         "-qStudyDate=20060204 -qModalitiesInStudy=CT -cstore CT -cstore PR:LE " +
         "-cstoredest /tmp\n"
@@ -179,7 +179,7 @@ public class QR {
         + "to own Application Entity QRSCU listing on local port 11113, "
         + "storing received CT images and Grayscale Softcopy Presentation "
         + "states to /tmp.";
-    
+
     /*
     private static void exit(String msg) {
         System.err.println(msg);
@@ -187,7 +187,7 @@ public class QR {
         System.exit(1);
     }
     */
-    
+
     private static String[] split(String s, char delim) {
         String[] s2 = { s, null };
         int pos = s.indexOf(delim);
@@ -197,7 +197,7 @@ public class QR {
         }
         return s2;
     }
-    
+
     private static int parseInt(String s, String errPrompt, int min, int max) {
         try {
             int i = Integer.parseInt(s);
@@ -209,12 +209,12 @@ public class QR {
         //exit(errPrompt);
         throw new RuntimeException();
     }
-    
+
     private static int toPort(String port) {
         return port != null ? parseInt(port, "illegal port number", 1, 0xffff)
                 : 104;
     }
-    
+
     private static CommandLine parse(String[] args)
     {
         Options opts = new Options();
@@ -536,9 +536,9 @@ public class QR {
 
         return cl;
     }
-    
-    public static CommandLine make_patient_studies_query( 
-            String localAE, Integer localPort, 
+
+    public static CommandLine make_patient_studies_query(
+            String localAE, Integer localPort,
             String remoteAE, String remoteIP, Integer remotePort,
             String name1, String lastname1,
             String patientId,
@@ -551,15 +551,15 @@ public class QR {
         // - PatientID
         // - StudyDate
         // - level=PATIENT
-        
+
         // Retrieve keys:
         // - StudyID
         // - StudyUID
         // - SeriesInStudyCount
         // - Patient Birthdate
         // - Patient sex
-        
-        List<String> additionalReturnKeys = new ArrayList<String>(); 
+
+        List<String> additionalReturnKeys = new ArrayList<String>();
         additionalReturnKeys.add( Integer.toHexString( Tag.StudyID ) ); // no necesario, no viene
         additionalReturnKeys.add( Integer.toHexString( Tag.StudyInstanceUID ) ); // no necesario, no viene
         //additionalReturnKeys.add( Integer.toHexString( Tag.SeriesNumber ) );
@@ -571,8 +571,8 @@ public class QR {
         //additionalReturnKeys.add( Integer.toHexString( Tag.ModalitiesInStudy ) ); // no necesario, no viene
         //additionalReturnKeys.add( Integer.toHexString( Tag.Modality ) );          // no necesario, no viene
         //additionalReturnKeys.add( Integer.toHexString( Tag.PersonName ) );        // no necesario, no viene
-        
-        
+
+
         // Armo localHost y remoteHost --------------------------------------------
         //
         String localHost = localAE +":"+localPort; // QRSCUCHE:44445
@@ -592,7 +592,7 @@ public class QR {
             String mes = ((fromM<10) ? ("0"+fromM) : (""+fromM) );
             String dia = ((fromD<10) ? ("0"+fromD) : (""+fromD) );
             qStudyDate = "-qStudyDate="+fromY + mes + dia;
-            
+
             // ClearCanvas no banca hacer request con rango de fecha a nivel de Image.
             if ( toY != null && toM != null && toD != null )
             {
@@ -601,7 +601,7 @@ public class QR {
                 qStudyDate += "-" + toY + mes + dia;
             }
         }
-        
+
         // apellido1 apellido2^nombre1 nombre2 -------------------------------------
         // Unico string con datatype PN (ver parte 5 de la norma dicom)
         //
@@ -609,7 +609,7 @@ public class QR {
         if (lastname1 != null) // Si quiere buscar por nombre, tiene que poner el apellido por lo menos.
         {
             qPatientName = lastname1 + qPatientName;
-        
+
             if (name1 != null)
                 qPatientName += "^" + name1;
         }
@@ -617,54 +617,54 @@ public class QR {
         {
             qPatientName += "^" + name1;
         }
-        
+
         // Armo modalities in study
         // TODO: como hago con varias modalities? NO SE PUEDE.
 //        String qModalitiesInStudy = "-qModalitiesInStudy="+modalities.get(0);
-        
+
         // Armo los argumentos
         ArrayList<String> qargs = new ArrayList<String>();
         qargs.add("-L");
         qargs.add(localHost);
         qargs.add(remoteHost);
-        
+
         // Si pide buscar por nombres
         if (qPatientName.compareTo("*") != 0) qargs.add("-qPatientName="+qPatientName);
-        
+
         if (qStudyDate.compareTo("") != 0) qargs.add(qStudyDate);
-        
+
         if (patientId != null) qargs.add("-qPatientID="+patientId);
-        
-        
+
+
 //        qargs.add(qModalitiesInStudy);
-        
+
         // -r
         for ( String key : additionalReturnKeys )
         {
             qargs.add("-r");
             qargs.add(key);
         }
-        
+
         // -P, -S, -I
         qargs.add(qNivel);
-        
+
         System.out.println("========================================");
         System.out.println("Argumentos consulta:");
         System.out.println(qargs);
         System.out.println("========================================");
-        
+
         String[] argus = new String[ qargs.size() ];
-        
+
         //qargs.toArray( argus );
         for (int i=0; i<qargs.size(); i++)
         {
             //System.out.println( qargs.get(i) );
             argus[i] = qargs.get(i);
         }
-    
-        
+
+
         CommandLine cm = parse(argus);
-        
+
         System.out.println("========================================");
         System.out.println("Command Line:");
         System.out.println( cm.getArgList() );
@@ -676,144 +676,161 @@ public class QR {
                                 options[i].getValuesList() );
         }
         System.out.println("========================================");
-        
+
         return cm;
-        
+
     } // make_patient_studies_query
-    
-    public static CommandLine make_studies_query( 
-            String localAE, Integer localPort, 
+
+    public static CommandLine make_studies_query(
+            String localAE, Integer localPort,
             String remoteAE, String remoteIP, Integer remotePort,
             String patientId, String studyId,
+            String patientName, String patientLastname,
             Integer fromY, Integer fromM, Integer fromD, // from date
             Integer toY, Integer toM, Integer toD ) // to date)
     {
-        // Query keys:
-        // - PatientName
-        // - PatientID
-        // - StudyDate
-        // - level=PATIENT
-        
-        // Retrieve keys:
-        // - StudyID
-        // - StudyUID
-        // - SeriesInStudyCount
-        // - Patient Birthdate
-        // - Patient sex
-        
-        List<String> additionalReturnKeys = new ArrayList<String>(); 
-        
-        // para no sobreescribir key
-        if (studyId == null)
-            additionalReturnKeys.add( Integer.toHexString( Tag.StudyID ) );
-        
-        additionalReturnKeys.add( Integer.toHexString( Tag.StudyInstanceUID ) );
-        additionalReturnKeys.add( Integer.toHexString( Tag.StudyDescription ) );
-        
-        //additionalReturnKeys.add( Integer.toHexString( Tag.SeriesNumber ) );
-        additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedStudies ) );   // # estudios
-        additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedSeries ) );    // # series
-        additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedInstances ) ); // # imagenes
-        
-        if ( patientId == null )
-           additionalReturnKeys.add( Integer.toHexString( Tag.PatientID ) ); // estoy consultando por este arg, solo puedo pedirlo si el que viene es null
-        
-        additionalReturnKeys.add( Integer.toHexString( Tag.PatientName ) );
-        additionalReturnKeys.add( Integer.toHexString( Tag.PatientBirthTime ) );
-        additionalReturnKeys.add( Integer.toHexString( Tag.PatientSex ) );
-        additionalReturnKeys.add( Integer.toHexString( Tag.ModalitiesInStudy ) );
-        //additionalReturnKeys.add( Integer.toHexString( Tag.Modality ) ); // se usa para series
-        
-        
-        // Armo localHost y remoteHost --------------------------------------------
-        //
-        String localHost = localAE +":"+localPort; // QRSCUCHE:44445
-        String remoteHost = remoteAE + "@" + remoteIP + ":" + remotePort; // SERVERAE@127.0.0.1:33333
+      // Query keys:
+      // - PatientName
+      // - PatientID
+      // - StudyDate
+      // - level=PATIENT
 
-        // Armo el nivel ----------------------------------------------------------
-        // Tambien necesito verificar que las tags de UIDs que quiero pedir, estan. Estas dependen del nivel.
-        //
-        // Nivel por defecto> study
+      // Retrieve keys:
+      // - StudyID
+      // - StudyUID
+      // - SeriesInStudyCount
+      // - Patient Birthdate
+      // - Patient sex
 
-        // Armo studyDate ---------------------------------------------------------
-        //
-        String qStudyDate = "";
-        if ( fromY != null && fromM != null && fromD != null)
-        {
-            String mes = ((fromM<10) ? ("0"+fromM) : (""+fromM));
-            String dia = ((fromD<10) ? ("0"+fromD) : (""+fromD) );
-            qStudyDate = "-qStudyDate="+fromY + mes + dia;
-            
-            // ClearCanvas no banca hacer request con rango de fecha a nivel de Image.
-            if ( toY != null && toM != null && toD != null)
-            {
-                mes = ((toM<10) ? ("0"+toM) : (""+toM));
-                dia = ((toD<10)  ? ("0"+toD)  : (""+toD) );
-                qStudyDate += "-" + toY + mes + dia;
-            }
-        }
-        
-        
-        // Armo modalities in study
-        // TODO: como hago con varias modalities? NO SE PUEDE.
-//        String qModalitiesInStudy = "-qModalitiesInStudy="+modalities.get(0);
-        
-        // Armo los argumentos
-        ArrayList<String> qargs = new ArrayList<String>();
-        qargs.add("-L");
-        qargs.add(localHost);
-        qargs.add(remoteHost);
-                
-        if (qStudyDate.compareTo("") != 0) qargs.add(qStudyDate);
-        
-        if (patientId != null) qargs.add("-qPatientID="+patientId);
+      ArrayList<String> qargs = new ArrayList<String>(); // query
+      List<String> additionalReturnKeys = new ArrayList<String>(); // retrieve
 
-        if (studyId != null) qargs.add("-qStudyID="+studyId);
-        
-        // Retrieve keys
-        for ( String key : additionalReturnKeys )
-        {
-            qargs.add("-r");
-            qargs.add(key);
-        }
-        
-        System.out.println("========================================");
-        System.out.println("Argumentos consulta:");
-        System.out.println(qargs);
-        System.out.println("========================================");
-        
-        String[] argus = new String[ qargs.size() ];
-        
-        //qargs.toArray( argus );
-        for (int i=0; i<qargs.size(); i++)
-        {
-            //System.out.println( qargs.get(i) );
-            argus[i] = qargs.get(i);
-        }
-    
-        
-        CommandLine cm = parse(argus);
-        
-        System.out.println("========================================");
-        System.out.println("Command Line:");
-        System.out.println( cm.getArgList() );
-        Option[] options = cm.getOptions();
-        for (int i=0; i<options.length; i++)
-        {
-            System.out.println( options[i].getDescription() +" "+
-                                options[i].getArgName() +" "+
-                                options[i].getValuesList() );
-        }
-        System.out.println("========================================");
-        
-        return cm;
-        
+      // para no sobreescribir key
+      if (studyId == null)
+         additionalReturnKeys.add( Integer.toHexString( Tag.StudyID ) );
+
+      if (patientName == null)
+         additionalReturnKeys.add( Integer.toHexString( Tag.PatientName ) );
+      else
+      {
+         String pnameSearch = "";
+         if (patientLastname != null)
+         {
+            pnameSearch = patientLastname + "*^" + patientName + "*";
+         }
+         else
+         {
+            pnameSearch = "*^" + patientName + "*";
+         }
+
+         qargs.add("-qPatientName="+pnameSearch);
+      }
+
+      additionalReturnKeys.add( Integer.toHexString( Tag.StudyInstanceUID ) );
+      additionalReturnKeys.add( Integer.toHexString( Tag.StudyDescription ) );
+
+      //additionalReturnKeys.add( Integer.toHexString( Tag.SeriesNumber ) );
+      additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedStudies ) );   // # estudios
+      additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedSeries ) );    // # series
+      additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedInstances ) ); // # imagenes
+
+      if ( patientId == null )
+          additionalReturnKeys.add( Integer.toHexString( Tag.PatientID ) ); // estoy consultando por este arg, solo puedo pedirlo si el que viene es null
+
+
+      additionalReturnKeys.add( Integer.toHexString( Tag.PatientBirthTime ) );
+      additionalReturnKeys.add( Integer.toHexString( Tag.PatientSex ) );
+      additionalReturnKeys.add( Integer.toHexString( Tag.ModalitiesInStudy ) );
+      //additionalReturnKeys.add( Integer.toHexString( Tag.Modality ) ); // se usa para series
+
+
+      // Armo localHost y remoteHost --------------------------------------------
+      //
+      String localHost = localAE +":"+localPort; // QRSCUCHE:44445
+      String remoteHost = remoteAE + "@" + remoteIP + ":" + remotePort; // SERVERAE@127.0.0.1:33333
+
+      // Armo el nivel ----------------------------------------------------------
+      // Tambien necesito verificar que las tags de UIDs que quiero pedir, estan. Estas dependen del nivel.
+      //
+      // Nivel por defecto> study
+
+      // Armo studyDate ---------------------------------------------------------
+      //
+      String qStudyDate = "";
+      if ( fromY != null && fromM != null && fromD != null)
+      {
+         String mes = ((fromM<10) ? ("0"+fromM) : (""+fromM));
+         String dia = ((fromD<10) ? ("0"+fromD) : (""+fromD) );
+         qStudyDate = "-qStudyDate="+fromY + mes + dia;
+
+         // ClearCanvas no banca hacer request con rango de fecha a nivel de Image.
+         if ( toY != null && toM != null && toD != null)
+         {
+            mes = ((toM<10) ? ("0"+toM) : (""+toM));
+            dia = ((toD<10)  ? ("0"+toD)  : (""+toD) );
+            qStudyDate += "-" + toY + mes + dia;
+         }
+      }
+
+      // Armo modalities in study
+      // TODO: como hago con varias modalities? NO SE PUEDE.
+      //String qModalitiesInStudy = "-qModalitiesInStudy="+modalities.get(0);
+
+      // Armo los argumentos
+
+      qargs.add("-L");
+      qargs.add(localHost);
+      qargs.add(remoteHost);
+
+      if (qStudyDate.compareTo("") != 0) qargs.add(qStudyDate);
+
+      if (patientId != null) qargs.add("-qPatientID="+patientId);
+
+      if (studyId != null) qargs.add("-qStudyID="+studyId);
+
+      // Retrieve keys
+      for ( String key : additionalReturnKeys )
+      {
+         qargs.add("-r");
+         qargs.add(key);
+      }
+
+      System.out.println("========================================");
+      System.out.println("Argumentos consulta:");
+      System.out.println(qargs);
+      System.out.println("========================================");
+
+      String[] argus = new String[ qargs.size() ];
+
+      //qargs.toArray( argus );
+      for (int i=0; i<qargs.size(); i++)
+      {
+         //System.out.println( qargs.get(i) );
+         argus[i] = qargs.get(i);
+      }
+
+      CommandLine cm = parse(argus);
+
+      System.out.println("========================================");
+      System.out.println("Command Line:");
+      System.out.println( cm.getArgList() );
+      Option[] options = cm.getOptions();
+      for (int i=0; i<options.length; i++)
+      {
+         System.out.println( options[i].getDescription() +" "+
+                             options[i].getArgName() +" "+
+                             options[i].getValuesList() );
+      }
+      System.out.println("========================================");
+
+      return cm;
+
     } // make_studies_query
-    
-    
-    
-    public static CommandLine make_study_series_query( 
-            String localAE, Integer localPort, 
+
+
+
+    public static CommandLine make_study_series_query(
+            String localAE, Integer localPort,
             String remoteAE, String remoteIP, Integer remotePort,
             String studyId, String studyUID,
             String studyDate,
@@ -824,19 +841,19 @@ public class QR {
         // - StudyUID
         // - ModalitiesInStudy
         // - level=SERIES
-        
+
         // Retrieve keys:
         // - ImageUID // YA OBTENGO el UID, no necesito ir mas abajo...
         // - ImageSize ??
         // - ImagesInSeriesCount
         // - ...
-        
 
-        List<String> additionalReturnKeys = new ArrayList<String>(); 
+
+        List<String> additionalReturnKeys = new ArrayList<String>();
         //additionalReturnKeys.add( Integer.toHexString( Tag.StudyID ) ); // no tira nada
         if ( studyUID == null )
             additionalReturnKeys.add( Integer.toHexString( Tag.StudyInstanceUID ) ); // es tambien parametro de busqueda
-        
+
 //        additionalReturnKeys.add( Integer.toHexString( Tag.SeriesInstanceUID ) );
 //        additionalReturnKeys.add( Integer.toHexString( Tag.SeriesNumber ) );
         //additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedStudies ) );   // # estudios // no tira nada
@@ -845,13 +862,13 @@ public class QR {
         //additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfStudyRelatedSeries ) );    // # series en estudio // no tira nada
         //additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfStudyRelatedInstances ) ); // # imagenes en estudio // no tira nada
         additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfSeriesRelatedInstances ) );
-        
+
         additionalReturnKeys.add( Integer.toHexString( Tag.RequestAttributesSequence ) );
         additionalReturnKeys.add( Integer.toHexString( Tag.SeriesDescription ) );
-        
+
         if (modality == null)
             additionalReturnKeys.add( Integer.toHexString( Tag.Modality ) ); // es tambien parametro de busqueda
-        
+
         // Armo localHost y remoteHost --------------------------------------------
         //
         String localHost = localAE +":"+localPort; // QRSCUCHE:44445
@@ -861,53 +878,53 @@ public class QR {
         //
         String qNivel = "-S";
 
-        
+
         // Armo modalities in study
         // TODO: como hago con varias modalities? NO SE PUEDE.
 //        String qModalitiesInStudy = "-qModalitiesInStudy="+modalities.get(0);
-        
+
         // Armo los argumentos
         ArrayList<String> qargs = new ArrayList<String>();
         qargs.add("-L");
         qargs.add(localHost);
         qargs.add(remoteHost);
-        
+
 //        if (modality != null) qargs.add("-qModality="+modality);
         if (studyId  != null) qargs.add("-qStudyID="+studyId);
-        if (studyUID != null) qargs.add("-qStudyInstanceUID="+studyUID);      
+        if (studyUID != null) qargs.add("-qStudyInstanceUID="+studyUID);
         if (studyDate != null) qargs.add("-qStudyDate="+studyDate);
-        
+
 //        qargs.add(qModalitiesInStudy);
-        
+
         // -r
         for ( String key : additionalReturnKeys )
         {
             qargs.add("-r");
             qargs.add(key);
         }
-        
+
         // -P, -S, -I
         qargs.add(qNivel);
-        
-        
+
+
         System.out.println("========================================");
         System.out.println("Argumentos consulta:");
         System.out.println(qargs);
         System.out.println("========================================");
-        
-        
+
+
         String[] argus = new String[ qargs.size() ];
-        
+
         //qargs.toArray( argus );
         for (int i=0; i<qargs.size(); i++)
         {
             System.out.println( qargs.get(i) );
             argus[i] = qargs.get(i);
         }
-    
-        
+
+
         CommandLine cm = parse(argus);
-        
+
         System.out.println("========================================");
         System.out.println( cm.getArgList() );
         Option[] options = cm.getOptions();
@@ -916,13 +933,13 @@ public class QR {
             System.out.println(  options[i].getArgName() +" "+ options[i].getValuesList() );
         }
         System.out.println("========================================");
-        
+
         return cm;
     }
-    
-    
-    public static CommandLine make_serie_images_query( 
-            String localAE, Integer localPort, 
+
+
+    public static CommandLine make_serie_images_query(
+            String localAE, Integer localPort,
             String remoteAE, String remoteIP, Integer remotePort,
             String studyUID, // Se agrega para consulta en COMEPA, MACIEL y ClearCanvas Server andan sin este parametro.
             String serieUID, String serieID )
@@ -931,44 +948,44 @@ public class QR {
         // - SerieUID
         // - StudyUID
         // - level=IMAGE
-        
+
         // Retrieve keys:
         // - ya pedi el UID en la consulta de las series
         //   puedo pedir alguna informacion mas de las imagenes de la serie?
         // - ...
-        
 
-        List<String> additionalReturnKeys = new ArrayList<String>(); 
+
+        List<String> additionalReturnKeys = new ArrayList<String>();
         //additionalReturnKeys.add( Integer.toHexString( Tag.StudyID ) ); // no tira nada
         //additionalReturnKeys.add( Integer.toHexString( Tag.StudyInstanceUID ) ); // SACO PORQUE AHORA VIENE COMO PARAMETRO
      //   additionalReturnKeys.add( Integer.toHexString( Tag.SeriesInstanceUID ) );
-        
+
         // TODO: instance uid???
         // TODO: probar esta en el maciel
         //additionalReturnKeys.add( Integer.toHexString( Tag.SOPInstanceUID ) ); // no tira nada
-        
+
         // TODO: Ver si con alguna de estas funca>
         // Tag.RequestedSOPInstanceUID
         // ReferencedSOPInstanceUID
         // SeriesInstanceUID
         // StudyInstanceUID
-        
+
         additionalReturnKeys.add( Integer.toHexString( Tag.InstanceNumber) );
         additionalReturnKeys.add( Integer.toHexString( Tag.SOPClassUID ) );
         additionalReturnKeys.add( Integer.toHexString( Tag.SOPInstanceUID ) );
-        
+
      //   additionalReturnKeys.add( Integer.toHexString( Tag.SeriesNumber ) );
         //additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedStudies ) );   // # estudios // no tira nada
         //additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedSeries ) );    // # series // no tira nada
         //additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfPatientRelatedInstances ) ); // # imagenes // no tira nada
-        
+
         //additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfStudyRelatedSeries ) );    // # series en estudio // no tira nada
         //additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfStudyRelatedInstances ) ); // # imagenes en estudio // no tira nada
         additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfSeriesRelatedInstances ) );
-        
+
         // Sirve para imagenes multiframe
         additionalReturnKeys.add( Integer.toHexString( Tag.NumberOfFrames ) );
-        
+
 
         // Armo localHost y remoteHost --------------------------------------------
         //
@@ -978,7 +995,7 @@ public class QR {
         // Nivel de Series ----------------------------------------------------------
         //
         String qNivel = "-I";
-        
+
         // Armo los argumentos -------------------------
         //
         ArrayList<String> qargs = new ArrayList<String>();
@@ -988,48 +1005,48 @@ public class QR {
         if (studyUID != null) qargs.add("-qStudyInstanceUID="+studyUID);
         if (serieUID != null) qargs.add("-qSeriesInstanceUID="+serieUID);
         if (serieID != null) qargs.add("-qSeriesNumber="+serieID);
-        
-        
+
+
         // prueba COMEPA no funciona
         //qargs.add("-qSOPInstanceUID=1.2.840.113564.172282448.2009081023193035973.2003000225000");
-        
+
         // prueba COMEPA no funciona
         //qargs.add("-qInstanceNumber=109855");
-        
+
         // Si pide buscar por nombres ------------------------
         //
         //if (qStudyId.compareTo("") != 0) qargs.add(qStudyId);
-        
-        
+
+
         // -r
         for ( String key : additionalReturnKeys )
         {
             qargs.add("-r");
             qargs.add(key);
         }
-        
+
         // -P, -S, -I
         qargs.add(qNivel);
-        
-        
+
+
         System.out.println("========================================");
         System.out.println("Argumentos consulta:");
         System.out.println(qargs);
         System.out.println("========================================");
-        
-        
+
+
         String[] argus = new String[ qargs.size() ];
-        
+
         //qargs.toArray( argus );
         for (int i=0; i<qargs.size(); i++)
         {
             System.out.println( qargs.get(i) );
             argus[i] = qargs.get(i);
         }
-    
-        
+
+
         CommandLine cm = parse(argus);
-        
+
         System.out.println("========================================");
         System.out.println( cm.getArgList() );
         Option[] options = cm.getOptions();
@@ -1038,23 +1055,23 @@ public class QR {
             System.out.println(  options[i].getArgName() +" "+ options[i].getValuesList() );
         }
         System.out.println("========================================");
-        
+
         return cm;
     }
-    
-    
-    
-    
+
+
+
+
     /**
-     * 
+     *
      * Si quiere buscar por nombre, tiene que poner el apellido por lo menos.
-     * 
+     *
      * @param nivel P=patient, S=series, I=images. Si es NULL, busca por nivel de study.
      * @return
      */
     @SuppressWarnings("deprecation")
-    public static CommandLine make_query_retrieve( 
-            String localAE, Integer localPort, 
+    public static CommandLine make_query_retrieve(
+            String localAE, Integer localPort,
             String remoteAE, String remoteIP, Integer remotePort,
             String name1, String lastname1,
             Date studyDate,
@@ -1096,7 +1113,7 @@ public class QR {
         // Armo localHost y remoteHost
         String localHost = localAE +":"+localPort; // QRSCUCHE:44445
         String remoteHost = remoteAE + "@" + remoteIP + ":" + remotePort; // SERVERAE@127.0.0.1:33333
-        
+
         // Armo studyDate
         // TODO: como hago para pedir con un rango de fechas.
         String qStudyDate = "";
@@ -1105,7 +1122,7 @@ public class QR {
             String mes = ( (studyDate.getMonth()<10) ? ("0"+studyDate.getMonth()) : (""+studyDate.getMonth()) );
             String dia = ( (studyDate.getDate()<10)  ? ("0"+studyDate.getDate())  : (""+studyDate.getDate()) );
             qStudyDate = "-qStudyDate="+studyDate.getYear() + mes + dia;
-            
+
             // ClearCanvas no banca hacer request con rango de fecha a nivel de Image.
             if ( studyDateEnd != null && nivel != Nivel._IMAGE )
             {
@@ -1114,62 +1131,62 @@ public class QR {
                 qStudyDate += "-" + studyDateEnd.getYear() + mes + dia;
             }
         }
-        
-        
+
+
 //        System.out.println( "qStudyDate: " + qStudyDate );
-        
+
         // apellido1 apellido2^nombre1 nombre2
         // Unico string con datatype PN (ver parte 5 de la norma dicom)
         String qPatientName = "*";
         if (lastname1 != null) // Si quiere buscar por nombre, tiene que poner el apellido por lo menos.
         {
             qPatientName = lastname1 + qPatientName;
-        
+
             if (name1 != null)
                 qPatientName += "^" + name1;
-        
+
         }
-        
+
         // Armo modalities in study
         // TODO: como hago con varias modalities? NO SE PUEDE.
         String qModalitiesInStudy = "-qModalitiesInStudy="+modalities.get(0);
-        
+
         // Armo los argumentos
         ArrayList<String> qargs = new ArrayList<String>();
         qargs.add("-L");
         qargs.add(localHost);
         qargs.add(remoteHost);
-        
+
         // Si pide buscar por nombres
         if (qPatientName.compareTo("*") != 0) qargs.add("-qPatientName="+qPatientName);
-        
+
         if (qStudyDate.compareTo("") != 0) qargs.add(qStudyDate);
-        
+
         qargs.add(qModalitiesInStudy);
-        
+
         // -r
         for ( String key : additionalReturnKeys )
         {
             qargs.add("-r");
             qargs.add(key);
         }
-        
+
         // -P, -S, -I
         qargs.add(qNivel);
-        
-        
+
+
         String[] argus = new String[ qargs.size() ];
-        
+
         //qargs.toArray( argus );
         for (int i=0; i<qargs.size(); i++)
         {
             System.out.println( qargs.get(i) );
             argus[i] = qargs.get(i);
         }
-    
-        
+
+
         CommandLine cm = parse(argus);
-        
+
         System.out.println("========================================");
         System.out.println( cm.getArgList() );
         Option[] options = cm.getOptions();
@@ -1183,10 +1200,10 @@ public class QR {
 //        String[] args2 = { "-L", "QRSCUCHE:44445", "SERVERAE@127.0.0.1:33333",
 //                "-qStudyDate=20000105-20020105", "-qModalitiesInStudy=CT",
 //                "-r", "0020000e", "-r", "00080018", "-S" };
-//        
+//
 //        if ( args2.length != argus.length )
 //            System.out.println("=== No tienen el mismo tamanio ===");
-//        
+//
 //        for (int j=0; j<args2.length; j++)
 //        {
 //            if ( args2[j].compareTo( argus[j] ) != 0 )
@@ -1194,12 +1211,12 @@ public class QR {
 //            else
 //                System.out.println( j + ": " + args2[j] + " == " + argus[j] );
 //        }
-//        
-        
+//
+
         /*
-        
+
         cm = parse(args2);
-        
+
         System.out.println("========================================");
         System.out.println( cm.getArgList() );
         options = cm.getOptions();
@@ -1210,26 +1227,26 @@ public class QR {
         System.out.println("========================================");
         */
 
-        
+
 //      System.out.println( qargs );
-        
+
         return cm;
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<DicomObject> send_query( CommandLine cl ) throws Exception
     {
         List<DicomObject> result = null;
-        
+
         //QRLifecycle dcmqr = new QRLifecycle();
         QRLifecycle2 dcmqr = new QRLifecycle2(); // Copia del de DCM4CHE
-        
+
         final List<String> argList = cl.getArgList();
         String remoteAE = argList.get(0);
-        
+
         String[] calledAETAddress = split(remoteAE, '@');
         dcmqr.setCalledAET(calledAETAddress[0], cl.hasOption("reuseassoc"));
-        
+
         if (calledAETAddress[1] == null) {
             dcmqr.setRemoteHost("127.0.0.1");
             dcmqr.setRemotePort(104);
@@ -1238,13 +1255,13 @@ public class QR {
             dcmqr.setRemoteHost(hostPort[0]);
             dcmqr.setRemotePort(toPort(hostPort[1]));
         }
-        
+
         if (cl.hasOption("L"))
         {
             String localAE = cl.getOptionValue("L");
             String[] localPort = split(localAE, ':');
             if (localPort[1] != null) {
-                dcmqr.setLocalPort(toPort(localPort[1]));                
+                dcmqr.setLocalPort(toPort(localPort[1]));
             }
             String[] callingAETHost = split(localPort[0], '@');
             dcmqr.setCalling(callingAETHost[0]);
@@ -1252,7 +1269,7 @@ public class QR {
                 dcmqr.setLocalHost(callingAETHost[1]);
             }
         }
-        
+
         if (cl.hasOption("username")) {
             String username = cl.getOptionValue("username");
             UserIdentity userId;
@@ -1266,74 +1283,74 @@ public class QR {
             userId.setPositiveResponseRequested(cl.hasOption("uidnegrsp"));
             dcmqr.setUserIdentity(userId);
         }
-        
+
         if (cl.hasOption("connectTO"))
             dcmqr.setConnectTimeout(parseInt(cl.getOptionValue("connectTO"),
                     "illegal argument of option -connectTO", 1, Integer.MAX_VALUE));
-        
+
         if (cl.hasOption("reaper"))
             dcmqr.setAssociationReaperPeriod(parseInt(cl.getOptionValue("reaper"),
                             "illegal argument of option -reaper", 1, Integer.MAX_VALUE));
-       
+
         if (cl.hasOption("cfindrspTO"))
             dcmqr.setDimseRspTimeout(parseInt(cl.getOptionValue("cfindrspTO"),
                     "illegal argument of option -cfindrspTO", 1, Integer.MAX_VALUE));
-       
+
         if (cl.hasOption("cmoverspTO"))
             dcmqr.setRetrieveRspTimeout(parseInt(cl.getOptionValue("cmoverspTO"),
                     "illegal argument of option -cmoverspTO", 1, Integer.MAX_VALUE));
-       
+
         if (cl.hasOption("cgetrspTO"))
             dcmqr.setRetrieveRspTimeout(parseInt(cl.getOptionValue("cgetrspTO"),
                     "illegal argument of option -cgetrspTO", 1, Integer.MAX_VALUE));
-        
+
         if (cl.hasOption("acceptTO"))
             dcmqr.setAcceptTimeout(parseInt(cl.getOptionValue("acceptTO"),
                     "illegal argument of option -acceptTO", 1, Integer.MAX_VALUE));
-       
+
         if (cl.hasOption("releaseTO"))
             dcmqr.setReleaseTimeout(parseInt(cl.getOptionValue("releaseTO"),
                     "illegal argument of option -releaseTO", 1, Integer.MAX_VALUE));
-       
+
         if (cl.hasOption("soclosedelay"))
             dcmqr.setSocketCloseDelay(parseInt(cl.getOptionValue("soclosedelay"),
                     "illegal argument of option -soclosedelay", 1, 10000));
-       
+
         if (cl.hasOption("rcvpdulen"))
             dcmqr.setMaxPDULengthReceive(parseInt(cl.getOptionValue("rcvpdulen"),
                     "illegal argument of option -rcvpdulen", 1, 10000) * KB);
-       
+
         if (cl.hasOption("sndpdulen"))
             dcmqr.setMaxPDULengthSend(parseInt(cl.getOptionValue("sndpdulen"),
                     "illegal argument of option -sndpdulen", 1, 10000) * KB);
-       
+
         if (cl.hasOption("sosndbuf"))
             dcmqr.setSendBufferSize(parseInt(cl.getOptionValue("sosndbuf"),
                     "illegal argument of option -sosndbuf", 1, 10000) * KB);
-        
+
         if (cl.hasOption("sorcvbuf"))
             dcmqr.setReceiveBufferSize(parseInt(cl.getOptionValue("sorcvbuf"),
                     "illegal argument of option -sorcvbuf", 1, 10000) * KB);
-        
+
         if (cl.hasOption("filebuf"))
             dcmqr.setFileBufferSize(parseInt(cl.getOptionValue("filebuf"),
                     "illegal argument of option -filebuf", 1, 10000) * KB);
-        
+
         dcmqr.setPackPDV(!cl.hasOption("pdv1"));
         dcmqr.setTcpNoDelay(!cl.hasOption("tcpdelay"));
         dcmqr.setMaxOpsInvoked(cl.hasOption("async") ? parseInt(cl
                 .getOptionValue("async"), "illegal argument of option -async", 0, 0xffff) : 1);
-        
+
         dcmqr.setMaxOpsPerformed(cl.hasOption("cstoreasync") ? parseInt(cl
                 .getOptionValue("cstoreasync"), "illegal argument of option -cstoreasync", 0, 0xffff) : 0);
-        
+
         if (cl.hasOption("C"))
             dcmqr.setCancelAfter(parseInt(cl.getOptionValue("C"), "illegal argument of option -C", 1, Integer.MAX_VALUE));
         if (cl.hasOption("lowprior"))
             dcmqr.setPriority(CommandUtils.LOW);
         if (cl.hasOption("highprior"))
             dcmqr.setPriority(CommandUtils.HIGH);
-        
+
         if (cl.hasOption("cstore")) {
             String[] storeTCs = cl.getOptionValues("cstore");
             for (String storeTC : storeTCs) {
@@ -1362,12 +1379,12 @@ public class QR {
             if (cl.hasOption("cstoredest"))
                 dcmqr.setStoreDestination(cl.getOptionValue("cstoredest"));
         }
-        
+
         dcmqr.setCGet(cl.hasOption("cget"));
 
         if (cl.hasOption("cmove"))
             dcmqr.setMoveDest(cl.getOptionValue("cmove"));
-        
+
         if (cl.hasOption("evalRetrieveAET"))
             dcmqr.setEvalRetrieveAET(true);
         // ...
@@ -1390,7 +1407,7 @@ public class QR {
             dcmqr.setQueryLevel(QRLifecycle2.QueryRetrieveLevel.IMAGE);
         else
             dcmqr.setQueryLevel(QRLifecycle2.QueryRetrieveLevel.STUDY);
-        
+
         if (cl.hasOption("noextneg"))
             dcmqr.setNoExtNegotiation(true);
         if (cl.hasOption("rel"))
@@ -1399,7 +1416,7 @@ public class QR {
             dcmqr.setDateTimeMatching(true);
         if (cl.hasOption("fuzzy"))
             dcmqr.setFuzzySemanticPersonNameMatching(true);
-        
+
         if (!cl.hasOption("P")) {
             if (cl.hasOption("retall"))
                 dcmqr.addPrivate(
@@ -1411,29 +1428,29 @@ public class QR {
                 dcmqr.addPrivate(
                         UID.PrivateVirtualMultiframeStudyRootQueryRetrieveInformationModelFIND);
         }
-        
+
         if (cl.hasOption("q")) {
             String[] matchingKeys = cl.getOptionValues("q");
             for (int i = 1; i < matchingKeys.length; i++, i++)
                 dcmqr.addMatchingKey(Tag.toTagPath(matchingKeys[i - 1]), matchingKeys[i]);
         }
-        
+
         if (cl.hasOption("r")) {
             String[] returnKeys = cl.getOptionValues("r");
             for (int i = 0; i < returnKeys.length; i++)
                 dcmqr.addReturnKey(Tag.toTagPath(returnKeys[i]));
         }
-        
+
         dcmqr.configureTransferCapability(cl.hasOption("ivrle"));
-        
+
         int repeat = cl.hasOption("repeat") ? parseInt(cl.getOptionValue("repeat"),
                 "illegal argument of option -repeat", 1, Integer.MAX_VALUE) : 0;
-        
+
         int interval = cl.hasOption("repeatdelay") ? parseInt(cl.getOptionValue("repeatdelay"),
                 "illegal argument of option -repeatdelay", 1, Integer.MAX_VALUE) : 0;
-        
+
         boolean closeAssoc = cl.hasOption("closeassoc");
-        
+
         if (cl.hasOption("tls")) {
             String cipher = cl.getOptionValue("tls");
             if ("NULL".equalsIgnoreCase(cipher)) {
@@ -1445,36 +1462,36 @@ public class QR {
             } else {
                //exit("Invalid parameter for option -tls: " + cipher);
             }
-            
+
             if (cl.hasOption("nossl2")) {
                 dcmqr.disableSSLv2Hello();
             }
-            
+
             dcmqr.setTlsNeedClientAuth(!cl.hasOption("noclientauth"));
-            
+
             if (cl.hasOption("keystore")) {
                 dcmqr.setKeyStoreURL(cl.getOptionValue("keystore"));
             }
-            
+
             if (cl.hasOption("keystorepw")) {
                 dcmqr.setKeyStorePassword(
                         cl.getOptionValue("keystorepw"));
             }
-            
+
             if (cl.hasOption("keypw")) {
                 dcmqr.setKeyPassword(cl.getOptionValue("keypw"));
             }
-            
+
             if (cl.hasOption("truststore")) {
                 dcmqr.setTrustStoreURL(
                         cl.getOptionValue("truststore"));
             }
-            
+
             if (cl.hasOption("truststorepw")) {
                 dcmqr.setTrustStorePassword(
                         cl.getOptionValue("truststorepw"));
             }
-            
+
             long t1 = System.currentTimeMillis();
             try {
                 dcmqr.initTLS();
@@ -1485,7 +1502,7 @@ public class QR {
             long t2 = System.currentTimeMillis();
             LOG.info("Initialize TLS context in {} s", Float.valueOf((t2 - t1) / 1000f));
         }
-        
+
         try
         {
             dcmqr.start();
@@ -1497,7 +1514,7 @@ public class QR {
             //return result;
             throw new Exception("QR ERROR: Failed to start server for receiving " + "requested objects:" + e.getMessage());
         }
-        
+
         try
         {
             long t1 = System.currentTimeMillis();
@@ -1520,28 +1537,28 @@ public class QR {
             for (;;)
             {
                 result = dcmqr.query();
-                
+
                 // PAB ==================================
                 /*
                 System.out.println( "<result>" );
                 for (DicomObject o : result)
                 {
                     System.out.println( "  <objeto>" );
-                    
+
                     //System.out.println( o.toString() ); // Imprime todo el objeto con sus contenidos.
-                    
+
                     // Configuracion de tags que quiero
                     Map<String,Integer> tags = new HashMap<String,Integer>();
                     tags.put("Patient Name TAG", Integer.parseInt(patientNameTag,16));
                     tags.put("Study Instance UID TAG", Integer.parseInt(studyInstanceUIDTag,16));
                     tags.put("Series Instance UID TAG", Integer.parseInt(seriesInstanceUIDTag,16));
                     tags.put("SOP Instance UID TAG", Integer.parseInt(sopInstanceUIDTag,16));
-                    
+
                     tags.put("PN", Integer.parseInt("00100010",16));
                     tags.put("PID", Integer.parseInt("00100020",16));
                     tags.put("PID Issuer", Integer.parseInt("00100021",16));
                     tags.put("PID Type", Integer.parseInt("00100022",16));
-                    
+
                     if ( o instanceof BasicDicomObject )
                     {
                         Iterator<String> itags = tags.keySet().iterator();
@@ -1552,22 +1569,22 @@ public class QR {
                             tagname = itags.next();
 
                             elem = ((BasicDicomObject)o).get( tags.get(tagname) );
-                            
+
                             System.out.println( "    " + tagname + ": " + elem );
                         }
                     }
                     System.out.println( "  </objeto>" );
                 }
-                
+
                 System.out.println( "</result>" );
                 */
                 // /PAB =================================
-                
+
                 long t3 = System.currentTimeMillis();
-                
+
 //                LOG.info("Received {} matching entries in {} s", Integer.valueOf(result.size()), Float.valueOf((t3 - t2) / 1000f));
                 System.out.println("Received "+Integer.valueOf(result.size())+" matching entries in "+Float.valueOf((t3 - t2) / 1000f)+" s" );
-                
+
                 if (dcmqr.isCMove() || dcmqr.isCGet())
                 {
                     if (dcmqr.isCMove())
@@ -1588,7 +1605,7 @@ public class QR {
                                Float.valueOf((t4 - t3) / 1000f) }
                             );
                 }
-                
+
                 if (repeat == 0 || closeAssoc)
                 {
                     try
@@ -1603,15 +1620,15 @@ public class QR {
                     //LOG.info("Released connection to {}",remoteAE);
                     System.out.println("Released connection to "+remoteAE);
                 }
-                
+
                 if (repeat-- == 0)
                     break;
-                
+
                 Thread.sleep(interval);
                 long t4 = System.currentTimeMillis();
-                
+
                 dcmqr.open();
-                
+
                 t2 = System.currentTimeMillis();
                 LOG.info("Reconnect or reuse connection to {} in {} s", remoteAE, Float.valueOf((t2 - t4) / 1000f));
                 System.out.println("Reconnect or reuse connection to "+remoteAE+" in "+Float.valueOf((t2 - t4) / 1000f)+" s");
@@ -1636,7 +1653,7 @@ public class QR {
         {
             dcmqr.stop();
         }
-        
+
         return result;
     }
 
@@ -1669,11 +1686,11 @@ public class QR {
         // Hace la consulta a nivel de Imagen, tambien puede hacer a nivel de
         // Serie o Paciente. Por defecto el nivle es estudio.
         // -I
-        
+
 /*
         ArrayList<String> modalitiesInStudy = new ArrayList<String>();
         modalitiesInStudy.add("CT");
-        
+
         ArrayList<String> additionalReturnKeys = new ArrayList<String>();
         additionalReturnKeys.add("0020000e");
         additionalReturnKeys.add("00080018");
@@ -1682,14 +1699,14 @@ public class QR {
         additionalReturnKeys.add("00100021"); // Issuer of Patient id
         additionalReturnKeys.add("00100022"); // Type of Patient id
 */
-        
+
         //System.out.println( new Date(2000, 1, 5) );
-        
+
         ////////// PRUEBAS COMEPA //////////////
-        
+
         // NO ME FUNKA LA BUSQUEDA POR PACIENTES
-//      CommandLine cl = make_patient_studies_query( 
-//            "QRSCUCHE", 44445, 
+//      CommandLine cl = make_patient_studies_query(
+//            "QRSCUCHE", 44445,
 //            "SM_COMEPA", "172.28.14.21", 4444,
 //      "richard", null,
 //      null,
@@ -1697,35 +1714,35 @@ public class QR {
 //      null, null, null); //new Date(2009,9,1), new Date(2009,9,2)); //new Date(2009-1900,8-1,10), new Date(2009-1900,8-1,30) );
 
       //System.out.println( new Date(2009-1900,8-1,1) );
-        
-//CommandLine cl = make_studies_query( 
-//      "QRSCUCHE", 44445, 
+
+//CommandLine cl = make_studies_query(
+//      "QRSCUCHE", 44445,
 //      "SM_COMEPA", "172.28.14.21", 4444,
 //      null, "5067",
 //      new Date(2009,8,10), null ); // hace transformacion de la fecha internamente.
 
-//CommandLine cl = make_study_series_query( 
-//      "QRSCUCHE", 44445, 
+//CommandLine cl = make_study_series_query(
+//      "QRSCUCHE", 44445,
 //      "SM_COMEPA", "172.28.14.21", 4444,
 //      "5067", null, //String studyId, String studyUID,
 //      null, null, //Date studyDateStart, Date studyDateEnd,
 //      "CR" );
 
 /*
-CommandLine cl = make_serie_images_query( 
-        "QRSCUCHE", 44445, 
+CommandLine cl = make_serie_images_query(
+        "QRSCUCHE", 44445,
         "SM_COMEPA", "172.28.14.21", 4444,
         null, null ); // COMEPA no funka con serieUID> "12979"
 */
-        CommandLine cl = make_serie_images_query( 
-                "QRSCUCHE", 44445, 
+        CommandLine cl = make_serie_images_query(
+                "QRSCUCHE", 44445,
                 "SM_COMEPA", "192.168.231.114", 4444,
                 "1.2.840.113564.172282448.2010081015463135948",
                 "1.2.840.113564.172282448.2010081016025284360",
                 null );
-        
+
          //////////PRUEBAS COMEPA //////////////
-        
+
         /*
         CommandLine cl = make_query_retrieve(
                 "QRSCUCHE", 44445,
@@ -1738,29 +1755,29 @@ CommandLine cl = make_serie_images_query(
                 Nivel._SERIES
                 );
         */
-        
 
-//        CommandLine cl = make_patient_studies_query( 
-//                "QRSCUCHE", 44445, 
+
+//        CommandLine cl = make_patient_studies_query(
+//                "QRSCUCHE", 44445,
 //                "SERVERAE", "127.0.0.1", 33333,
 //                null, "MISTER",
 //                null,
 //                null, null, null,
 //                null, null, null);
-        
-//        CommandLine cl = make_studies_query( 
-//                "QRSCUCHE", 44445, 
+
+//        CommandLine cl = make_studies_query(
+//                "QRSCUCHE", 44445,
 //                "SERVERAE", "127.0.0.1", 33333,
 //                "2178309", null,
 //                null, null );
-        
-//        CommandLine cl = make_study_series_query( 
-//                "QRSCUCHE", 44445, 
+
+//        CommandLine cl = make_study_series_query(
+//                "QRSCUCHE", 44445,
 //                "SERVERAE", "127.0.0.1", 33333,
 //                null, null, //String studyId, String studyUID,
 //                null, null, //Date studyDateStart, Date studyDateEnd,
 //                "CT" );
-        
+
         List<DicomObject> result = null;
         try
         {
@@ -1773,22 +1790,22 @@ CommandLine cl = make_serie_images_query(
         }
 
         System.out.println(result);
-        
+
 //        String[] argsss = cl.getArgs();
 //        for (int i=0; i<argsss.length; i++)
 //           System.out.println( argsss[i] );
-        
+
         // TODO: como hago para pedir de varias modalidades?
 //        String[] args2 = { "-L", "QRSCUCHE:44445", "SERVERAE@127.0.0.1:33333",
 //                "-qStudyDate=20010105", "-qModalitiesInStudy=CT", "-r",
 //                "0020000e", "-r", "00080018", "-r", "00100010", "-I" };
 //        CommandLine cm = parse(args2);
-        
+
 //        String[] args_maciel = { "-L", "QRSCUCHE:44445", "DCM4CHEE@192.168.118.16:11112",
 //                "-qStudyDate=20090609", "-qModalitiesInStudy=CT", "-r",
 //                "0020000e", "-r", "00080018", "-r", "00100010", "-I" };
 //        CommandLine cm_maciel = parse(args_maciel);
-        
+
         // Imprime lso contenids de result en "bruto" como XML.
         //XStream xstream = new XStream();
         //String xml = xstream.toXML(cl);
@@ -1800,16 +1817,16 @@ CommandLine cl = make_serie_images_query(
 // dcmqr.bat -L QRSCUCHE:44445 SERVERAE@127.0.0.1:33333
 // -q0020000D=1.2.840.113619.2.30.1.1762295590.1623.978668949.886
 // -q0020000E=1.2.840.113619.2.30.1.1762295590.1623.978668949.890 -r 0020000e -r 00080018 -S
-        
+
 /*
         String[] args2 = { "-L", "QRSCUCHE:44445", "SERVERAE@127.0.0.1:33333",
                            "-qStudyDate=20000105-20020105", "-qModalitiesInStudy=CT",
                            "-r", "0020000e", "-r", "00080018", "-S" };
         CommandLine cmf1f2 = parse(args2);
-        
+
         System.out.println("========================================");
         System.out.println( cmf1f2.getArgList() );
-        
+
         Option[] options = cmf1f2.getOptions();
         for (int i=0; i<options.length; i++)
         {
@@ -1819,21 +1836,21 @@ CommandLine cl = make_serie_images_query(
         System.out.println("========================================");
 
         List<DicomObject> result = send_query( cmf1f2 );
-*/      
-        
+*/
+
         // Imprime los contenids de result en "bruto" como XML.
         //XStream xstream = new XStream();
         //String xml = xstream.toXML(result);
         //System.out.print(xml);
-        
+
         // PAB ==================================
         System.out.println( "<result>" );
         for (DicomObject o : result)
         {
             System.out.println( "  <objeto>" );
-            
+
             //System.out.println( o.toString() ); // Imprime todo el objeto con sus contenidos.
-            
+
             // Configuracion de tags que quiero
             /*
             Map<String,Integer> tags = new HashMap<String,Integer>();
@@ -1849,19 +1866,19 @@ CommandLine cl = make_serie_images_query(
             tags.put("TypeOfPatientID",   Tag.TypeOfPatientID);
             tags.put("StudyID",           Tag.StudyID);
             tags.put("SeriesNumber",      Tag.SeriesNumber); // numero de la serie en las series de un estudio
-            
+
             tags.put("NumberOfPatientRelatedStudies",   Tag.NumberOfPatientRelatedStudies);   // # estudios
             tags.put("NumberOfPatientRelatedSeries",    Tag.NumberOfPatientRelatedSeries);    // # series
             tags.put("NumberOfPatientRelatedInstances", Tag.NumberOfPatientRelatedInstances); // # imagenes
 
             tags.put("NumberOfStudyRelatedSeries", Tag.NumberOfStudyRelatedSeries );       // # series en estudio
             tags.put("NumberOfStudyRelatedInstances", Tag.NumberOfStudyRelatedInstances ); // # imagenes en estudio
-            
+
             tags.put("NumberOfSeriesRelatedInstances", Tag.NumberOfSeriesRelatedInstances ); // # imagenes en la serie
-       
+
             tags.put("ModalitiesInStudy", Tag.ModalitiesInStudy );
             tags.put("Modality", Tag.Modality );
-            
+
             if ( o instanceof BasicDicomObject )
             {
                 Iterator<String> itags = tags.keySet().iterator();
@@ -1872,7 +1889,7 @@ CommandLine cl = make_serie_images_query(
                     tagname = itags.next();
 
                     elem = ((BasicDicomObject)o).get( tags.get(tagname) );
-                    
+
                     if (elem != null && !elem.isEmpty())
                     {
                        System.out.println( "    " + tagname + ": " + elem );
@@ -1881,7 +1898,7 @@ CommandLine cl = make_serie_images_query(
                 }
             }
             */
-            
+
             // Iteracion por todos los elements del DicomObject.
             Iterator<DicomElement> i = o.iterator();
             DicomElement iter_elem;
@@ -1892,9 +1909,9 @@ CommandLine cl = make_serie_images_query(
                 //iter_elem.tag(); // DICOM Tag
                 //String value = "";
                 //((SimpleDicomElement)iter_elem). no puedo acceder al append para ver el valor...
-                
-                
-                
+
+
+
                 //System.out.print( iter_elem.getClass() );
                 System.out.print( "    <element>\n"   +
                                   //"      <value_rep>" + iter_elem.vr() + "</value_rep>\n" +
@@ -1905,15 +1922,15 @@ CommandLine cl = make_serie_images_query(
 
                 //System.out.print( "<element>\n" + iter_elem.toString() + "\n</element>\n" );
             }
-            
-            
+
+
             System.out.println( "  </objeto>" );
         }
-        
+
         System.out.println( "</result>" );
         // /PAB =================================
 
-        
+
         //String xml = xstream.toXML(result);
         //System.out.print(xml);
     }
